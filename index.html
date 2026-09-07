@@ -1,461 +1,391 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SLT Demo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero-shot テキスト音声合成を用いた日本語訛り英語生成の比較</title>
 
   <style>
-    :root {
-      --bg: #f3f5f8;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
-    }
-
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top left, #e8eefc 0, transparent 34%),
-        var(--bg);
-      color: var(--text);
-      padding: 42px 20px 56px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+                   Arial, "Noto Sans JP", sans-serif;
+      color: #202124;
+      background: #f6f8fb;
+      line-height: 1.7;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e6ec;
+      padding: 48px 0 36px;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      color: #5f6368;
+      font-size: 16px;
     }
 
     main {
-      width: min(100%, 1040px);
-      margin: 0 auto;
+      padding: 40px 0 64px;
     }
 
-    .paper-header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-
-    .paper-title {
-      margin: 0;
-      font-size: clamp(1.55rem, 3vw, 2.15rem);
-      line-height: 1.28;
-      font-weight: 760;
-      letter-spacing: 0.01em;
-    }
-
-    .authors {
-      margin: 12px auto 0;
-      max-width: 860px;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: var(--muted);
-    }
-
-    .section {
-      margin-top: 28px;
+    section {
+      margin-bottom: 44px;
     }
 
     .section-title {
-      margin: 0 0 14px;
-      font-size: 1.25rem;
-      font-weight: 720;
-      letter-spacing: 0.01em;
+      margin: 0 0 18px;
+      font-size: 25px;
+      line-height: 1.35;
     }
 
-    .section-note {
-      margin: -6px 0 14px;
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.6;
+    .section-description {
+      margin: -8px 0 20px;
+      color: #68707a;
+      font-size: 15px;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .video-card {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-
-    .demo-media-grid {
-      display: grid;
-      grid-template-columns: minmax(260px, 0.95fr) minmax(220px, 0.75fr);
-      gap: 16px;
-      align-items: center;
-    }
-
-    .video-frame {
-      width: min(100%, 380px);
-      margin: 0 auto;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #000;
-    }
-
-    video {
-      display: block;
-      width: 100%;
-      max-height: 64vh;
-      background: #000;
-    }
-
-    .setup-image {
-      width: min(100%, 360px);
-      margin: 0 auto;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-    }
-
-    .setup-image img {
-      display: block;
-      width: 100%;
-      max-height: 360px;
-      object-fit: contain;
-      background: #f8fafc;
-    }
-
-    .setup-caption {
-      margin-top: 8px;
-      text-align: center;
-      font-size: 0.86rem;
-      line-height: 1.5;
-      color: var(--muted);
-    }
-
-    .caption {
-      margin-top: 12px;
-      text-align: center;
-      font-size: 0.92rem;
-      color: var(--muted);
-    }
-
-    .speech-text {
-      margin-top: 14px;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fafafa;
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    .label {
-      display: inline-block;
-      margin-bottom: 5px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .demo-steps {
-      margin-top: 14px;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
+    .original-card,
+    .sample-card {
       background: #ffffff;
-      font-size: 0.94rem;
-      line-height: 1.6;
+      border: 1px solid #dde2e8;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(30, 45, 65, 0.05);
     }
 
-    .demo-steps ol {
-      margin: 6px 0 0 1.25em;
-      padding: 0;
+    .original-card {
+      padding: 24px;
+      border-left: 5px solid #315da8;
     }
 
-    .demo-steps li {
-      margin: 4px 0;
+    .original-label {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eaf0fa;
+      color: #294f8d;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
     }
 
-    .note {
-      margin-top: 14px;
-      padding: 14px 16px;
-      border-left: 4px solid var(--accent);
-      border-radius: 12px;
-      background: var(--accent-soft);
-      color: #1e3a8a;
-      font-size: 0.92rem;
-      line-height: 1.65;
+    .original-text {
+      margin: 0 0 18px;
+      font-size: 18px;
+      font-weight: 600;
     }
 
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 860px;
-    }
-
-    th,
-    td {
-      padding: 14px 12px;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
-      text-align: left;
-    }
-
-    th {
-      font-size: 0.78rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      background: #fafafa;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .example-id {
-      font-weight: 720;
-      white-space: nowrap;
-    }
-
-    .text-block {
+    .samples {
       display: grid;
-      gap: 8px;
-      min-width: 260px;
-      line-height: 1.55;
-      font-size: 0.92rem;
+      gap: 26px;
+    }
+
+    .sample-card {
+      overflow: hidden;
+    }
+
+    .sample-header {
+      padding: 22px 24px;
+      background: #fbfcfe;
+      border-bottom: 1px solid #e3e7ed;
+    }
+
+    .sample-number {
+      margin: 0 0 10px;
+      color: #315da8;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .text-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 14px;
+      align-items: start;
+      margin-top: 8px;
     }
 
     .text-label {
-      display: inline-block;
-      width: 5.6em;
-      color: var(--muted);
-      font-size: 0.82rem;
+      color: #5f6368;
+      font-size: 14px;
       font-weight: 700;
+    }
+
+    .text-content {
+      font-size: 16px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .model-card {
+      padding: 22px 20px 24px;
+      min-width: 0;
+      border-right: 1px solid #e3e7ed;
+    }
+
+    .model-card:last-child {
+      border-right: none;
+    }
+
+    .model-name {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
     }
 
     audio {
-      width: 185px;
-      max-width: 100%;
+      display: block;
+      width: 100%;
+      height: 40px;
     }
 
-    .audio-label {
-      margin-bottom: 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--muted);
-      display: none;
+    footer {
+      padding: 28px 0 40px;
+      color: #777f89;
+      font-size: 13px;
+      text-align: center;
     }
 
-    @media (max-width: 820px) {
-      .demo-media-grid {
+    @media (max-width: 760px) {
+      .container {
+        width: min(100% - 24px, 1100px);
+      }
+
+      header {
+        padding: 34px 0 28px;
+      }
+
+      main {
+        padding-top: 28px;
+      }
+
+      .text-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .model-grid {
         grid-template-columns: 1fr;
       }
 
-      .video-frame {
-        width: min(100%, 360px);
+      .model-card {
+        border-right: none;
+        border-bottom: 1px solid #e3e7ed;
       }
 
-      .setup-image {
-        width: min(100%, 320px);
-      }
-
-      .setup-image img {
-        max-height: 300px;
-      }
-    }
-
-    @media (max-width: 720px) {
-      body {
-        padding: 26px 14px 42px;
-      }
-
-      .card {
-        padding: 14px;
-        border-radius: 18px;
-      }
-
-      .video-frame,
-      .setup-image {
-        border-radius: 13px;
-      }
-
-      .section {
-        margin-top: 24px;
-      }
-    }
-
-    @media (max-width: 900px) {
-      table,
-      thead,
-      tbody,
-      th,
-      td,
-      tr {
-        display: block;
-      }
-
-      table {
-        min-width: 0;
-      }
-
-      thead {
-        display: none;
-      }
-
-      tr {
-        padding: 14px 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      tr:last-child {
+      .model-card:last-child {
         border-bottom: none;
       }
 
-      td {
-        padding: 8px 0;
-        border-bottom: none;
-      }
-
-      .audio-label {
-        display: block;
-      }
-
-      audio {
-        width: 100%;
+      .model-name {
+        text-align: left;
       }
     }
   </style>
 </head>
 
 <body>
-  <main>
-    <header class="paper-header">
-      <h1 class="paper-title">ON-DEVICE IMPLEMENTATION OF A PRONUNCIATION CONVERSION SYSTEM FROM JAPANESE-ACCENTED ENGLISH TO NATIVE ENGLISH</h1>
-      <p class="authors">H. Yamashita, T. Okamoto, R. Takashima, Y. Ohtani, T. Takiguchi, T. Toda, and H. Kawai</p>
-    </header>
+  <header>
+    <div class="container">
+      <h1>Zero-shot テキスト音声合成を用いた日本語訛り英語生成の比較</h1>
+      <p>
+        H. Yamashita, T. Okamoto, R. Takashima, Y. Ohtani, T. Takiguchi, T. Toda, and H. Kawai
+      </p>
+    </div>
+  </header>
 
-    <section class="section">
-      <h2 class="section-title">Mobile Demo</h2>
+  <main class="container">
 
-      <div class="card video-card">
-        <div class="demo-media-grid">
-          <div>
-            <div class="video-frame">
-              <video controls playsinline preload="metadata">
-                <source src="videos/SLT_demo_mic_input.mp4" type="video/mp4" />
-              </video>
-            </div>
-          </div>
+    <!-- Original voice -->
+    <section>
+      <h2 class="section-title">Original Voice</h2>
+      <p class="section-description">
+        Reference Japanese speech used as the original speaker voice.
+      </p>
 
-          <div>
-            <div class="setup-image">
-              <img src="images/SLT_demo_setup.png" alt="SLT demo setup" />
-            </div>
-            <div class="setup-caption">Demo setup used for recording speaker playback with a mobile device.</div>
-          </div>
-        </div>
-
-        <div class="caption">Mobile voice conversion demo</div>
-
-        <div class="speech-text">
-          <span class="label">Utterance text</span><br />
-          AUTHOR OF THE DANGER TRAIL, PHILIP STEELS, ETC
-        </div>
-
-        <div class="demo-steps">
-          <span class="label">Demo video steps</span>
-          <ol>
-            <li>Confirm that the mobile device is running in airplane mode.</li>
-            <li>Record and convert audio played from a speaker.</li>
-            <li>Check the conversion log, including the RTF.</li>
-            <li>Play the converted speech.</li>
-          </ol>
-        </div>
+      <div class="original-card">
+        <div class="original-label">ORIGINAL</div>
+        <p class="original-text">策略は衣服を必要とするが、真実は裸であることを好む。</p>
+        <audio controls preload="none">
+          <source src="model/jsut/BASIC5000_0026.wav" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
       </div>
     </section>
 
-    <section class="section">
-      <h2 class="section-title">Audio Demo</h2>
-      <p class="section-note">The audio demo samples use the same female speaker from the JSUT corpus.</p>
+    <!-- Generated speech -->
+    <section>
+      <h2 class="section-title">Generated Speech</h2>
+      <p class="section-description">
+        Each utterance contains one generated sample from each model.
+      </p>
 
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Example</th>
-                <th>Texts</th>
-                <th>Japanese-accented</th>
-                <th>Native English</th>
-                <th>Converted</th>
-              </tr>
-            </thead>
-            <tbody id="audio-demo-body"></tbody>
-          </table>
-        </div>
+      <div class="samples">
+
+        <!-- Sample 1 -->
+        <article class="sample-card">
+          <div class="sample-header">
+            <p class="sample-number">Sample 01</p>
+
+            <div class="text-row">
+              <div class="text-label">English text</div>
+              <div class="text-content">
+                Author of the danger trail, Philip Steels, etc.
+              </div>
+            </div>
+
+            <div class="text-row">
+              <div class="text-label">Katakana text</div>
+              <div class="text-content" lang="ja">
+                オーサー オブ ザ デンジャー トレイル、フィリップ スティールズ、エトセトラ。
+              </div>
+            </div>
+          </div>
+
+          <div class="model-grid">
+            <div class="model-card">
+              <p class="model-name">CosyVoice2</p>
+              <audio controls preload="none">
+                <source src="model/CosyVoice2/arctic_a0001.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">ConformerFastSpeech2</p>
+              <audio controls preload="none">
+                <source src="model/ConformerFastSpeech2/arctic_a0001.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">F5TTS</p>
+              <audio controls preload="none">
+                <source src="model/F5TTS/arctic_a0001.wav" type="audio/wav">
+              </audio>
+            </div>
+          </div>
+        </article>
+
+        <!-- Sample 2 -->
+        <article class="sample-card">
+          <div class="sample-header">
+            <p class="sample-number">Sample 02</p>
+
+            <div class="text-row">
+              <div class="text-label">English text</div>
+              <div class="text-content">
+                Not at this particular case, Tom, apologized Whittemore.
+              </div>
+            </div>
+
+            <div class="text-row">
+              <div class="text-label">Katakana text</div>
+              <div class="text-content" lang="ja">
+                ノット アット ディス パティキュラー ケース、トム、アポロジャイズド ウィットモア。
+              </div>
+            </div>
+          </div>
+
+          <div class="model-grid">
+            <div class="model-card">
+              <p class="model-name">CosyVoice2</p>
+              <audio controls preload="none">
+                <source src="model/CosyVoice2/arctic_a0002.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">ConformerFastSpeech2</p>
+              <audio controls preload="none">
+                <source src="model/ConformerFastSpeech2/arctic_a0002.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">F5TTS</p>
+              <audio controls preload="none">
+                <source src="model/F5TTS/arctic_a0002.wav" type="audio/wav">
+              </audio>
+            </div>
+          </div>
+        </article>
+
+        <!-- Sample 3 -->
+        <article class="sample-card">
+          <div class="sample-header">
+            <p class="sample-number">Sample 03</p>
+
+            <div class="text-row">
+              <div class="text-label">English text</div>
+              <div class="text-content">
+                For the twentieth time that evening the two men shook hands.
+              </div>
+            </div>
+
+            <div class="text-row">
+              <div class="text-label">Katakana text</div>
+              <div class="text-content" lang="ja">
+                フォー ザ トゥエンティエス タイム ザット イーブニング、ザ トゥー メン シュック ハンズ。
+              </div>
+            </div>
+          </div>
+
+          <div class="model-grid">
+            <div class="model-card">
+              <p class="model-name">CosyVoice2</p>
+              <audio controls preload="none">
+                <source src="model/CosyVoice2/arctic_a0003.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">ConformerFastSpeech2</p>
+              <audio controls preload="none">
+                <source src="model/ConformerFastSpeech2/arctic_a0003.wav" type="audio/wav">
+              </audio>
+            </div>
+
+            <div class="model-card">
+              <p class="model-name">F5TTS</p>
+              <audio controls preload="none">
+                <source src="model/F5TTS/arctic_a0003.wav" type="audio/wav">
+              </audio>
+            </div>
+          </div>
+        </article>
+
       </div>
     </section>
   </main>
 
-  <script>
-    const demoItems = [
-      {
-        id: "0001",
-        englishText: "AUTHOR OF THE DANGER TRAIL, PHILIP STEELS, ETC",
-        katakanaText: "オーサー オブ ザ デンジャー トレイル、フィリップ スティールズ、エトセトラ"
-      },
-      {
-        id: "0002",
-        englishText: "Not at this particular case, Tom, apologized Whittemore.",
-        katakanaText: "ノット アット ディス パーティキュラー ケース、トム、アポロジャイズド ウィズモア。"
-      },
-      {
-        id: "0003",
-        englishText: "For the twentieth time that evening the two men shook hands.",
-        katakanaText: "フォー ザ トゥウェンティエス タイム ザット イブニング ザ トゥーメン シュック ハンズ。"
-      }
-    ];
-
-    const tbody = document.getElementById("audio-demo-body");
-
-    function audioCell(label, path) {
-      return `
-        <td>
-          <div class="audio-label">${label}</div>
-          <audio controls preload="metadata">
-            <source src="${path}" type="audio/wav" />
-          </audio>
-        </td>
-      `;
-    }
-
-    demoItems.forEach((item, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="example-id">#${index + 1}</td>
-        <td>
-          <div class="text-block">
-            <div><span class="text-label">English</span>${item.englishText}</div>
-            <div><span class="text-label">Katakana</span>${item.katakanaText}</div>
-          </div>
-        </td>
-        ${audioCell("Japanese-accented", `audio/katakana/${item.id}.wav`)}
-        ${audioCell("Native English", `audio/native/${item.id}.wav`)}
-        ${audioCell("Converted", `audio/converted/${item.id}.wav`)}
-      `;
-      tbody.appendChild(row);
-    });
-  </script>
+  <footer>
+    Speech Demo
+  </footer>
 </body>
 </html>
