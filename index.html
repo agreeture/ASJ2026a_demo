@@ -207,6 +207,79 @@
         text-align: left;
       }
     }
+
+    .mobile-demo-card {
+      padding: 24px;
+      background: #ffffff;
+      border: 1px solid #dde2e8;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(30, 45, 65, 0.05);
+    }
+    .mobile-demo .demo-media-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: center;
+    }
+    .mobile-demo .video-frame {
+      width: min(100%, 380px);
+      margin: 0 auto;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+    }
+    .mobile-demo video {
+      display: block;
+      width: 100%;
+      max-height: 64vh;
+      background: #000;
+    }
+    .mobile-demo .setup-image {
+      width: min(100%, 360px);
+      margin: 0 auto;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #dde2e8;
+      background: #f8fafc;
+    }
+    .mobile-demo .setup-image img {
+      display: block;
+      width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+    }
+    .mobile-demo .setup-caption,
+    .mobile-demo .caption {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: #68707a;
+    }
+    .mobile-demo .speech-text,
+    .mobile-demo .demo-steps {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid #e3e7ed;
+      border-radius: 12px;
+      background: #fbfcfe;
+      font-size: 15px;
+    }
+    .mobile-demo .label {
+      display: inline-block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #5f6368;
+    }
+    .mobile-demo .demo-steps ol {
+      margin: 6px 0 0 1.25em;
+      padding: 0;
+    }
+    .mobile-demo .demo-steps li { margin: 4px 0; }
+    @media (max-width: 760px) {
+      .mobile-demo .demo-media-grid { grid-template-columns: 1fr; }
+      .mobile-demo-card { padding: 18px; }
+    }
   </style>
 </head>
 
@@ -221,6 +294,46 @@
   </header>
 
   <main class="container">
+
+    <section class="mobile-demo">
+      <h2 class="section-title">Mobile Demo</h2>
+
+      <div class="mobile-demo-card">
+        <div class="demo-media-grid">
+          <div>
+            <div class="video-frame">
+              <video controls playsinline preload="metadata">
+                <source src="videos/SLT_demo_mic_input.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+
+          <div>
+            <div class="setup-image">
+              <img src="images/SLT_demo_setup.png" alt="SLT demo setup" />
+            </div>
+            <div class="setup-caption">Demo setup used for recording speaker playback with a mobile device.</div>
+          </div>
+        </div>
+
+        <div class="caption">Mobile voice conversion demo</div>
+
+        <div class="speech-text">
+          <span class="label">Utterance text</span><br />
+          AUTHOR OF THE DANGER TRAIL, PHILIP STEELS, ETC
+        </div>
+
+        <div class="demo-steps">
+          <span class="label">Demo video steps</span>
+          <ol>
+            <li>Confirm that the mobile device is running in airplane mode.</li>
+            <li>Record and convert audio played from a speaker.</li>
+            <li>Check the conversion log, including the RTF.</li>
+            <li>Play the converted speech.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
 
     <!-- Original voice -->
     <section>
